@@ -1,0 +1,43 @@
+{
+  "name": "use-yup-hook-validate",
+  "version": "1.1.3",
+  "description": "A hook for fast form field validation without headache",
+  "author": {
+    "name": "Douglas Viliano",
+    "email": "dougvil@msn.com",
+    "url": "https://github.com/dougvil"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "react-hooks",
+    "yup"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src --out-dir .",
+    "bump": "npm version",
+    "example": "cd example && yarn install && yarn package",
+    "prepublishOnly": "yarn build",
+    "watch": "nodemon --watch src --exec \"yarn build\""
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-react": "^7.14.5",
+    "nodemon": "^2.0.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dougvil/use-yup-hook-validate"
+  },
+  "bugs": {
+    "url": "https://github.com/dougvil/use-yup-hook-validate/issues"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "yup": "^0.32.11"
+  }
+}
