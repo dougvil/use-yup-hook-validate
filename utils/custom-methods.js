@@ -1,52 +1,65 @@
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
+Object.defineProperty(exports, '__esModule', {
+  value: true,
 });
 exports.addCustomMethods = addCustomMethods;
 
-var _validations = require("./validations");
+var _validations = require('./validations');
 
 function addCustomMethods(yup) {
   yup.addMethod(yup.string, 'fullname', function (message) {
     return this.test('fullname', message, function (value) {
       var path = this.path,
-          createError = this.createError;
+        createError = this.createError;
       var arrStr = String(value).split(' ');
-      return arrStr.length > 1 && !!arrStr[1] || createError({
-        path: path,
-        message: message
-      });
+      return (
+        (arrStr.length > 1 && !!arrStr[1]) ||
+        createError({
+          path: path,
+          message: message,
+        })
+      );
     });
   });
   yup.addMethod(yup.string, 'cnpjOrCpf', function (message) {
     return this.test('cnpjOrCpf', message, function (value) {
       var path = this.path,
-          createError = this.createError;
-      return (0, _validations.isCnpj)(value) || (0, _validations.isCpf)(value) || createError({
-        path: path,
-        message: message
-      });
+        createError = this.createError;
+      return (
+        (0, _validations.isCnpj)(value) ||
+        (0, _validations.isCpf)(value) ||
+        createError({
+          path: path,
+          message: message,
+        })
+      );
     });
   });
   yup.addMethod(yup.string, 'cpf', function (message) {
     return this.test('cnpjOrCpf', message, function (value) {
       var path = this.path,
-          createError = this.createError;
-      return (0, _validations.isCpf)(value) || createError({
-        path: path,
-        message: message
-      });
+        createError = this.createError;
+      return (
+        (0, _validations.isCpf)(value) ||
+        createError({
+          path: path,
+          message: message,
+        })
+      );
     });
   });
   yup.addMethod(yup.string, 'cnpj', function (message) {
     return this.test('cnpjOrCpf', message, function (value) {
       var path = this.path,
-          createError = this.createError;
-      return (0, _validations.isCnpj)(value) || createError({
-        path: path,
-        message: message
-      });
+        createError = this.createError;
+      return (
+        (0, _validations.isCnpj)(value) ||
+        createError({
+          path: path,
+          message: message,
+        })
+      );
     });
   });
   yup.addMethod(yup.string, 'phone', function () {

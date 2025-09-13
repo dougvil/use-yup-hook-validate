@@ -1,0 +1,39 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (patch|minor|major)'
+        required: true
+        default: 'patch'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      - name: Run standard-version
+        run: |
+          if [ "${{ github.event.inputs.release_type }}" = "patch" ]; then npx standard-version; fi
+          if [ "${{ github.event.inputs.release_type }}" = "minor" ]; then npx standard-version --release-as minor; fi
+          if [ "${{ github.event.inputs.release_type }}" = "major" ]; then npx standard-version --release-as major; fi
+      - name: Push changes & tags
+        run: |
+          git push --follow-tags origin HEAD:main

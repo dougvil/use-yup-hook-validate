@@ -1,10 +1,4 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.ptBr = void 0;
-var ptBr = {
+export const ptBr = {
   mixed: {
     default: 'O campo é inválido',
     required: 'Campo obrigatório',
@@ -40,5 +34,6 @@ var ptBr = {
     min: 'O campo deve ter no mínimo ${min} itens',
     max: 'O campo deve ter no máximo ${max} itens',
   },
-};
-exports.ptBr = ptBr;
+} as const;
+
+export type PtBrMessages = typeof ptBr;

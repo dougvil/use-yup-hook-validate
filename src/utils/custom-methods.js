@@ -5,9 +5,7 @@ export function addCustomMethods(yup) {
     return this.test('fullname', message, function (value) {
       const { path, createError } = this;
       const arrStr = String(value).split(' ');
-      return (
-        (arrStr.length > 1 && !!arrStr[1]) || createError({ path, message })
-      );
+      return (arrStr.length > 1 && !!arrStr[1]) || createError({ path, message });
     });
   });
 

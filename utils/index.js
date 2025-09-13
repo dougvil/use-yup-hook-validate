@@ -1,13 +1,13 @@
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
+Object.defineProperty(exports, '__esModule', {
+  value: true,
 });
-Object.defineProperty(exports, "addCustomMethods", {
+Object.defineProperty(exports, 'addCustomMethods', {
   enumerable: true,
   get: function get() {
     return _customMethods.addCustomMethods;
-  }
+  },
 });
 
-var _customMethods = require("./custom-methods");
+var _customMethods = require('./custom-methods');

@@ -1,63 +1,44 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.isCpf = isCpf;
-exports.isCnpj = isCnpj;
-
-function isCpf(y) {
-  var x = y.replace(/\D/g, '');
+export function isCpf(y: string): boolean {
+  const x = y.replace(/\D/g, '');
 
   if (x.length > 11) {
     return false;
   }
 
-  var soma = 0;
-  var resto;
-  var i = 0;
-
+  let soma = 0;
+  let resto: number;
+  let i = 0;
   if (x === '00000000000') {
     return false;
   }
-
   for (i = 1; i <= 9; i += 1) {
     soma += parseInt(x.substring(i - 1, i), 10) * (11 - i);
   }
-
   resto = (soma * 10) % 11;
-
   if (resto === 10 || resto === 11) {
     resto = 0;
   }
-
   if (resto !== parseInt(x.substring(9, 10), 10)) {
     return false;
   }
-
   soma = 0;
-
   for (i = 1; i <= 10; i++) {
     soma += parseInt(x.substring(i - 1, i), 10) * (12 - i);
   }
-
   resto = (soma * 10) % 11;
-
   if (resto === 10 || resto === 11) {
     resto = 0;
   }
-
   if (resto !== parseInt(x.substring(10, 11), 10)) {
     return false;
   }
-
   return true;
 }
 
-function isCnpj(cnpj) {
+export function isCnpj(cnpj: string): boolean {
   cnpj = cnpj.replace(/[^\d]+/g, '');
   if (cnpj === '') return false;
-  if (cnpj.length !== 14) return false; // Elimina CNPJs invalidos conhecidos
+  if (cnpj.length !== 14) return false;
 
   if (
     cnpj === '00000000000000' ||
@@ -71,32 +52,29 @@ function isCnpj(cnpj) {
     cnpj === '88888888888888' ||
     cnpj === '99999999999999'
   )
-    return false; // Valida DVs
+    return false;
 
-  var i;
-  var tamanho = cnpj.length - 2;
-  var numeros = cnpj.substring(0, tamanho);
-  var digitos = cnpj.substring(tamanho);
-  var soma = 0;
-  var pos = tamanho - 7;
-
+  let i: number;
+  let tamanho = cnpj.length - 2;
+  let numeros = cnpj.substring(0, tamanho);
+  const digitos = cnpj.substring(tamanho);
+  let soma = 0;
+  let pos = tamanho - 7;
   for (i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
+    soma += Number(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
-
-  var resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
   if (+resultado !== +digitos.charAt(0)) return false;
+
   tamanho += 1;
   numeros = cnpj.substring(0, tamanho);
   soma = 0;
   pos = tamanho - 7;
-
   for (i = tamanho; i >= 1; i--) {
-    soma += numeros.charAt(tamanho - i) * pos--;
+    soma += Number(numeros.charAt(tamanho - i)) * pos--;
     if (pos < 2) pos = 9;
   }
-
   resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
   if (+resultado !== +digitos.charAt(1)) return false;
   return true;

@@ -1,5 +1,10 @@
 # use-yup-hook-validate
 
+![npm version](https://img.shields.io/npm/v/use-yup-hook-validate?color=blue&label=npm)
+![CI](https://github.com/dougvil/use-yup-hook-validate/actions/workflows/ci.yml/badge.svg)
+![Publish](https://github.com/dougvil/use-yup-hook-validate/actions/workflows/publish.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 The `use-yup-hook-validate` is a custom hook for react to help you validate form fields with no headache.
 **Just Yup and You!**
 
@@ -11,7 +16,7 @@ yarn add use-yup-hook-validate
 
 ## Usage
 
-### Import both **yup** and **useYupHookValidate** from this package (for custom validations that only exists in this project)
+### Import both **yup** and **useYupHookValidate** from this package (for custom validations that only exist in this project)
 
 ```javascript
 ...
@@ -20,7 +25,7 @@ import { useYupHookValidate, yup } from 'use-yup-hook-validate';
 
 ### Create a validation schema
 
-```javascript
+```typescript
 const yupSchema = yup.object().shape({
   name: yup.string().fullname('Type first and last name').required(),
   email: yup.string().email().required(),
@@ -31,7 +36,7 @@ const yupSchema = yup.object().shape({
 
 ### Create your Form component and prepare some things. Please, read the comments below for further explanations:
 
-```javascript
+```tsx
 const Form = () => {
     // Create a form state object
     const [formState, setFormState] = useState({
@@ -41,7 +46,7 @@ const Form = () => {
         about: ''
     })
     // You'd rather create a handle for state object update (optional)
-    const handleSetFormState = (path) => ({target}) => {
+  const handleSetFormState = (path: string) => ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setFormState(prev => ({...prev, [path]: target.value}))
     }
 
@@ -66,7 +71,7 @@ const Form = () => {
 
 ### You can use validateField with onBlur, onKeyUp, or any other callback you'd want. Feel free to adapt it to your project needs.
 
-```javascript
+```tsx
     return (
         <form>
           <div className="input-group">
@@ -74,25 +79,25 @@ const Form = () => {
             <input
               value={formState.name}
               onKeyUp={validateField('name')}
-              onChange={handleSetState('name')}
+              onChange={handleSetFormState('name')}
             />
             <small>{formErrors['name']}</small>
           </div>
           <div className="input-group">
             <label>E-mail</label>
             <input
-              value={formState.name}
+              value={formState.email}
               onKeyUp={validateField('email')}
-              onChange={handleSetState('email')}
+              onChange={handleSetFormState('email')}
             />
             <small>{formErrors['email']}</small>
           </div>
           <div className="input-group">
             <label>Phone</label>
             <input
-              value={formState.name}
+              value={formState.phone}
               onKeyUp={validateField('phone')}
-              onChange={handleSetState('phone')}
+              onChange={handleSetFormState('phone')}
             />
             <small>{formErrors['phone']}</small>
           </div>
@@ -107,3 +112,7 @@ const Form = () => {
 ## 📝 License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## 📄 Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history. Managed with Conventional Commits + standard-version.

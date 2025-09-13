@@ -1,0 +1,19 @@
+{
+  "types": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "refactor", "section": "Refactoring" },
+    { "type": "docs", "section": "Documentation", "hidden": true },
+    { "type": "style", "section": "Styles", "hidden": true },
+    { "type": "chore", "section": "Chores", "hidden": true },
+    { "type": "test", "section": "Tests", "hidden": true }
+  ],
+  "commitUrlFormat": "https://github.com/dougvil/use-yup-hook-validate/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/dougvil/use-yup-hook-validate/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/dougvil/use-yup-hook-validate/issues/{{id}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "skip": {
+    "tag": false
+  }
+}
