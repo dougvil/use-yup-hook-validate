@@ -36,3 +36,6 @@ temp/
 
 # Keep source JS copies at root out (if any pattern undesired adjust)
 /*.js
+
+# Prevent accidental JS files in source directory (TS should be used)
+src/**/*.js
