@@ -1,6 +1,6 @@
 {
   "name": "use-yup-hook-validate",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "A hook for fast form field validation without headache",
   "author": {
     "name": "Douglas Viliano",

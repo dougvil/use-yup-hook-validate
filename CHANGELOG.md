@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.3](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.2...v2.3.3) (2025-09-13)
+
+
+### Bug Fixes
+
+* dist folder not being populated ([dd65262](https://github.com/dougvil/use-yup-hook-validate/commit/dd65262694a8275a293826331f15de8958530dd1))
+
 ### [2.3.2](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.1...v2.3.2) (2025-09-13)
 
 ### [2.3.1](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.0...v2.3.1) (2025-09-13)
