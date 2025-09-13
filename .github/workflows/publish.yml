@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch:  # temporary: allows manual testing
+  workflow_dispatch: # temporary: allows manual testing
 
 jobs:
   publish:
