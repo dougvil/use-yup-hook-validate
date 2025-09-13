@@ -26,7 +26,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc -p tsconfig.json",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
@@ -42,7 +42,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dougvil/use-yup-hook-validate"
+    "url": "git+https://github.com/dougvil/use-yup-hook-validate.git"
   },
   "bugs": {
     "url": "https://github.com/dougvil/use-yup-hook-validate/issues"
