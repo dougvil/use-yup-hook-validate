@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.4](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.3...v2.3.4) (2025-09-13)
+
+
+### Bug Fixes
+
+* reduce bundle size attempt ([6405338](https://github.com/dougvil/use-yup-hook-validate/commit/64053388690a482eb99c32df79e7cbf58083d6af))
+
 ### [2.3.3](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.2...v2.3.3) (2025-09-13)
 
 
