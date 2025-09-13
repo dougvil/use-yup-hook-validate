@@ -1,6 +1,11 @@
+import { ObjectSchema, AnySchema } from 'yup';
 import * as yup from 'yup';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { assign, set, unset, isEmpty, debounce } from 'lodash';
+import assign from 'lodash/assign';
+import set from 'lodash/set';
+import unset from 'lodash/unset';
+import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 import { addCustomMethods } from './utils';
 
 addCustomMethods(yup as any);
@@ -8,7 +13,7 @@ addCustomMethods(yup as any);
 export { yup };
 
 export interface UseYupHookValidateParams<TForm extends Record<string, any>> {
-  validationSchema: yup.ObjectSchema<any> | yup.AnySchema; // Flexibility for nested schemas
+  validationSchema: ObjectSchema<any> | AnySchema; // Flexibility for nested schemas
   formState: TForm;
   updateErrorsCallback?: (errors: Record<string, any>) => void;
   validationTimeout?: number;
