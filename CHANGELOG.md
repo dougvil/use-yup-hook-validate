@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/dougvil/use-yup-hook-validate/compare/v4.0.0...v2.1.0) (2025-09-13)
+
+
+### Features
+
+* trigger publish ([66b01c8](https://github.com/dougvil/use-yup-hook-validate/commit/66b01c8763621875e2355281b3694e72002382a8))
+
 ## [4.0.0](https://github.com/dougvil/use-yup-hook-validate/compare/v3.0.0...v4.0.0) (2025-09-13)
 
 
