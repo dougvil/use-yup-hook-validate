@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.5](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.4...v2.3.5) (2026-07-01)
+
+
+### Refactoring
+
+* improve performance ([4feaa07](https://github.com/dougvil/use-yup-hook-validate/commit/4feaa07c6360c5dbae6b2fb7bc028545362025cb))
+
 ### [2.3.4](https://github.com/dougvil/use-yup-hook-validate/compare/v2.3.3...v2.3.4) (2025-09-13)
 
 
