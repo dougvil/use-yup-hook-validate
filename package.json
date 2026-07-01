@@ -28,6 +28,8 @@
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write .",
@@ -55,17 +57,21 @@
     "react": ">=16.8"
   },
   "devDependencies": {
-    "typescript": "5.5.4",
-    "rimraf": "5.0.5",
-    "@types/react": "^18.2.23",
+    "@testing-library/react": "^14.3.1",
     "@types/lodash": "^4.14.202",
-    "react": "^18.2.0",
-    "eslint": "^8.57.0",
-    "@typescript-eslint/parser": "^7.18.0",
+    "@types/react": "^18.2.23",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.3.3",
-    "standard-version": "^9.5.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.3.1",
+    "rimraf": "5.0.5",
+    "standard-version": "^9.5.0",
+    "typescript": "5.5.4",
+    "vitest": "^4.1.9"
   }
 }

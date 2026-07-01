@@ -1,412 +1,335 @@
-# 🎯 use-yup-hook-validate
+# use-yup-hook-validate
 
 <div align="center">
 
 ![npm version](https://img.shields.io/npm/v/use-yup-hook-validate?color=blue&label=npm&style=for-the-badge)
 ![CI](https://github.com/dougvil/use-yup-hook-validate/actions/workflows/ci.yml/badge.svg?style=for-the-badge)
-![Publish](https://github.com/dougvil/use-yup-hook-validate/actions/workflows/publish.yml/badge.svg?style=for-the-badge)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 
-**🚀 Zero-hassle React form validation with Yup**
+**React form validation with Yup — without a form library.**
 
-_The simplest way to validate forms in React. No wrappers, no render props, no complexity._
+You keep your own state. You keep your own UI. The hook handles field validation, error sync, and form-level validity.
 
-**Just Yup and You!** ✨
-
-[Installation](#-installation) • [Quick Start](#-quick-start) • [Examples](#-examples) • [API](#-api) • [Contributing](#-contributing)
+[Installation](#installation) · [Quick Start](#quick-start) · [How It Works](#how-it-works) · [API](#api) · [Custom Validators](#custom-yup-methods) · [Locale](#portuguese-locale)
 
 </div>
 
 ---
 
-## 🌟 Why use-yup-hook-validate?
+## Why this package?
 
-- **🎯 Simple**: Just one hook, one schema, done!
-- **⚡ Fast**: Debounced validation with performance optimization
-- **🔧 Flexible**: Works with any form structure
-- **📦 Lightweight**: Minimal bundle size impact
-- **🛡️ Type-safe**: Full TypeScript support
-- **🎨 Framework-agnostic**: No UI library dependencies
+Most form libraries (Formik, React Hook Form, Final Form) ask you to adopt their state model, field registration, and component patterns. **use-yup-hook-validate** takes a different path:
 
-## � Installation
+| You already have | This hook adds |
+| --- | --- |
+| `useState` for form values | Per-field validation via `validateAt` |
+| A Yup schema | Debounced full-form validity check |
+| Your own inputs / UI library | Error sync through a callback |
+
+**Good fit when you want:**
+
+- Yup schemas without adopting a full form framework
+- Validation on `onBlur`, `onChange`, or any trigger you choose
+- Integration with Material UI, Chakra, plain HTML, or anything else
+- Built-in Brazilian validators (CPF, CNPJ, phone) and pt-BR messages
+- A small API surface: one hook, three return values
+
+**Not a replacement for** form libraries that manage submission, field arrays, or complex wizard flows — it focuses on validation only.
+
+---
+
+## Installation
 
 ```bash
-# npm
 npm install use-yup-hook-validate
+# peer dependency: react >= 16.8
+```
 
-# yarn
+```bash
 yarn add use-yup-hook-validate
-
-# pnpm
 pnpm add use-yup-hook-validate
 ```
 
-## ⚡ Quick Start
+---
 
-Transform your form validation from this mess:
-
-```jsx
-// ❌ The old way - complex and verbose
-const [errors, setErrors] = useState({});
-const [touched, setTouched] = useState({});
-
-const validateField = (name, value) => {
-  // 50 lines of validation logic...
-};
-
-const handleBlur = (e) => {
-  setTouched({ ...touched, [e.target.name]: true });
-  validateField(e.target.name, e.target.value);
-};
-```
-
-To this elegance:
-
-```jsx
-// ✅ The use-yup-hook-validate way - clean and simple
-import { useYupHookValidate, yup } from 'use-yup-hook-validate';
-
-const schema = yup.object().shape({
-  email: yup.string().email().required(),
-  name: yup.string().required(),
-});
-
-const [validateField, isValid] = useYupHookValidate({
-  validationSchema: schema,
-  formState,
-  updateErrorsCallback: setFormErrors,
-});
-```
-
-## 📚 Examples
-
-### 🎨 Basic Example
+## Quick Start
 
 ```tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useYupHookValidate, yup } from 'use-yup-hook-validate';
 
-const ContactForm = () => {
-  // 1️⃣ Define your form state
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
+const schema = yup.object({
+  email: yup.string().email('Invalid email').required('Required'),
+  name: yup.string().required('Required'),
+});
 
-  // 2️⃣ Create your validation schema with custom methods
-  const schema = yup.object().shape({
-    name: yup.string().fullname('Please enter your full name').required(),
-    email: yup.string().email('Invalid email format').required(),
-    phone: yup.string().phone('Invalid phone number').required(),
-    message: yup.string().min(10, 'Message too short').required(),
-  });
+function SignUpForm() {
+  const [formState, setFormState] = useState({ email: '', name: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // 3️⃣ Set up form errors state
-  const [formErrors, setFormErrors] = useState({});
-
-  // 4️⃣ Initialize the validation hook
   const [validateField, isFormValid, resetValidation] = useYupHookValidate({
     validationSchema: schema,
     formState,
     updateErrorsCallback: setFormErrors,
-    validationTimeout: 300, // Debounce for better UX
   });
 
-  // 5️⃣ Create a reusable input handler
-  const handleInputChange =
-    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormState((prev) => ({ ...prev, [field]: e.target.value }));
-    };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isFormValid) {
-      console.log('Form is valid!', formState);
-      // Submit your form
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium">Full Name</label>
-        <input
-          type="text"
-          value={formState.name}
-          onChange={handleInputChange('name')}
-          onBlur={validateField('name')} // 🎯 Validate on blur
-          className={`input ${formErrors.name ? 'border-red-500' : ''}`}
-        />
-        {formErrors.name && (
-          <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
-        )}
-      </div>
+    <form onSubmit={(e) => e.preventDefault()}>
+      <input
+        value={formState.name}
+        onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
+        onBlur={validateField('name')}
+      />
+      {formErrors.name && <span>{formErrors.name}</span>}
 
-      <div>
-        <label className="block text-sm font-medium">Email</label>
-        <input
-          type="email"
-          value={formState.email}
-          onChange={handleInputChange('email')}
-          onKeyUp={validateField('email')} // 🎯 Validate on keyup
-          className={`input ${formErrors.email ? 'border-red-500' : ''}`}
-        />
-        {formErrors.email && (
-          <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
-        )}
-      </div>
+      <input
+        value={formState.email}
+        onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
+        onBlur={validateField('email')}
+      />
+      {formErrors.email && <span>{formErrors.email}</span>}
 
-      <button
-        type="submit"
-        disabled={!isFormValid}
-        className="btn-primary disabled:opacity-50"
-      >
-        {isFormValid ? '✅ Submit' : '❌ Complete Form'}
+      <button type="submit" disabled={!isFormValid}>
+        Submit
       </button>
     </form>
   );
-};
+}
 ```
 
-### 🚀 Advanced Usage with Custom Validation
+---
 
-```tsx
-// Custom validation methods available out of the box
-const advancedSchema = yup.object().shape({
-  username: yup.string().min(3).max(20).required(),
-  password: yup
-    .string()
-    .min(8)
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain uppercase, lowercase and number'
-    )
-    .required(),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required(),
-  website: yup.string().url('Must be a valid URL'),
-  age: yup.number().min(18, 'Must be 18+').max(120).required(),
-  terms: yup.boolean().oneOf([true], 'You must accept terms'),
-});
+## How It Works
+
+```
+┌─────────────┐     validateField('email')()     ┌──────────────────┐
+│  Your input │ ───────────────────────────────► │  Yup validateAt  │
+│  + state    │                                  │  (single field)  │
+└─────────────┘                                  └────────┬─────────┘
+                                                          │
+                                                          ▼
+┌─────────────┐     updateErrorsCallback(errors)  ┌──────────────────┐
+│ formErrors  │ ◄──────────────────────────────── │  errors state    │
+└─────────────┘                                   └──────────────────┘
+
+┌─────────────┐     debounced (validationTimeout) ┌──────────────────┐
+│ isFormValid │ ◄──────────────────────────────── │  Yup validate    │
+└─────────────┘                                   │  (full schema)   │
+                                                  └──────────────────┘
 ```
 
-### 🎛️ Real-time Validation
+1. **`validateField(path)`** returns a handler you attach to `onBlur`, `onChange`, etc. When called, it validates that field against the current `formState`.
+2. **`updateErrorsCallback`** receives the accumulated field errors object whenever errors change.
+3. **`isFormValid`** reflects whether the **entire schema** passes — updated on a debounced schedule (default 300 ms) to avoid validating the full form on every keystroke.
 
-```tsx
-// Validate as user types with debouncing
-const [validateField] = useYupHookValidate({
-  validationSchema: schema,
-  formState,
-  updateErrorsCallback: setFormErrors,
-  validationTimeout: 500, // Wait 500ms after user stops typing
-});
+---
 
-// Use with onChange for real-time feedback
-<input
-  onChange={(e) => {
-    handleInputChange('email')(e);
-    validateField('email')(e); // Real-time validation
-  }}
-/>;
-```
-
-## � API Reference
+## API
 
 ### `useYupHookValidate(options)`
 
-#### Parameters
+#### Options
 
-| Parameter              | Type        | Required | Default | Description                      |
-| ---------------------- | ----------- | -------- | ------- | -------------------------------- |
-| `validationSchema`     | `YupSchema` | ✅ Yes   | -       | Your Yup validation schema       |
-| `formState`            | `object`    | ✅ Yes   | -       | Your form state object           |
-| `updateErrorsCallback` | `function`  | ✅ Yes   | -       | Callback to update form errors   |
-| `validationTimeout`    | `number`    | ❌ No    | `300`   | Debounce timeout in milliseconds |
+| Option | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `validationSchema` | `Yup.ObjectSchema` | Yes | — | Yup schema for the form |
+| `formState` | `object` | Yes | — | Current form values (must stay in sync with inputs) |
+| `updateErrorsCallback` | `(errors) => void` | No | noop | Called when field errors change |
+| `validationTimeout` | `number` | No | `300` | Debounce (ms) for validation runs |
 
 #### Returns
-
-Returns an array with three elements:
 
 ```tsx
 const [validateField, isFormValid, resetValidation] = useYupHookValidate(options);
 ```
 
-| Return Value      | Type                                            | Description                                   |
-| ----------------- | ----------------------------------------------- | --------------------------------------------- |
-| `validateField`   | `(fieldName: string) => (event: Event) => void` | Function to validate specific field           |
-| `isFormValid`     | `boolean`                                       | True when all required fields pass validation |
-| `resetValidation` | `() => void`                                    | Function to reset all validation states       |
+| Value | Type | Description |
+| --- | --- | --- |
+| `validateField` | `(fieldPath, onSuccess?) => () => void` | Factory that returns an event handler |
+| `isFormValid` | `boolean` | `true` when the full schema validates |
+| `resetValidation` | `() => void` | Clears errors and resets validity |
 
-### 🎯 Custom Yup Methods
+#### `validateField(fieldPath, onSuccess?)`
 
-This package extends Yup with additional validation methods:
+- **`fieldPath`** — field name or dot-notation path for nested objects (e.g. `'address.city'`).
+- **`onSuccess`** — optional callback when the field passes validation.
+- Returns a **zero-argument function** — no event parameter needed:
 
 ```tsx
-// Available custom methods
-yup.string().phone(); // Validates phone numbers
-yup.string().fullname(); // Validates full name (first + last)
-// More methods available - check the source!
+// attach directly
+<input onBlur={validateField('email')} />
+
+// with success callback
+<input onBlur={validateField('email', () => console.log('valid!'))} />
+
+// nested field
+<input onBlur={validateField('address.zipCode')} />
 ```
 
-## 🎨 Integration Examples
+#### `resetValidation()`
 
-### With Material-UI
+Clears internal error and validity state and invokes `updateErrorsCallback({})`.
+
+---
+
+## Custom Yup Methods
+
+Importing `yup` from this package registers extra string methods automatically:
+
+| Method | Description |
+| --- | --- |
+| `.fullname(msg?)` | At least two non-empty name parts (e.g. first + last) |
+| `.phone()` | Brazilian phone pattern `(XX) XXXXX-XXXX` |
+| `.cpf(msg?)` | Brazilian CPF checksum |
+| `.cnpj(msg?)` | Brazilian CNPJ checksum |
+| `.cnpjOrCpf(msg?)` | Accepts either CPF or CNPJ |
 
 ```tsx
-import { TextField } from '@mui/material';
+const schema = yup.object({
+  name: yup.string().fullname('Enter your full name').required(),
+  document: yup.string().cnpjOrCpf().required(),
+  phone: yup.string().phone().required(),
+});
+```
 
-<TextField
-  label="Email"
+Standalone helpers are also exported:
+
+```tsx
+import { isCpf, isCnpj } from 'use-yup-hook-validate';
+
+isCpf('529.982.247-25'); // true / false
+isCnpj('11.222.333/0001-81'); // true / false
+```
+
+---
+
+## Portuguese Locale
+
+Use the bundled pt-BR message map with Yup's `setLocale`:
+
+```tsx
+import { yup, ptBr } from 'use-yup-hook-validate';
+
+yup.setLocale(ptBr);
+
+const schema = yup.object({
+  email: yup.string().email().required(), // "Formato de e-mail inválido", "Campo obrigatório"
+});
+```
+
+---
+
+## Examples
+
+### Real-time validation while typing
+
+Use a higher `validationTimeout` to debounce keystrokes:
+
+```tsx
+const [validateField] = useYupHookValidate({
+  validationSchema: schema,
+  formState,
+  updateErrorsCallback: setFormErrors,
+  validationTimeout: 500,
+});
+
+<input
   value={formState.email}
-  onChange={handleInputChange('email')}
+  onChange={(e) => {
+    setFormState((s) => ({ ...s, email: e.target.value }));
+    validateField('email')(); // debounced — safe on every change
+  }}
+/>
+```
+
+### Material UI
+
+```tsx
+<TextField
+  value={formState.email}
+  onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
   onBlur={validateField('email')}
   error={!!formErrors.email}
   helperText={formErrors.email}
-  fullWidth
-/>;
+/>
 ```
 
-### With Chakra UI
+### Memoize your schema
+
+Define the schema outside the component or wrap it in `useMemo` so it is not recreated every render:
 
 ```tsx
-import { Input, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
-
-<FormControl isInvalid={!!formErrors.email}>
-  <FormLabel>Email</FormLabel>
-  <Input
-    value={formState.email}
-    onChange={handleInputChange('email')}
-    onBlur={validateField('email')}
-  />
-  <FormErrorMessage>{formErrors.email}</FormErrorMessage>
-</FormControl>;
-```
-
-### With React Hook Form (Migration Helper)
-
-```tsx
-// Easy migration from react-hook-form
-const { register, formState: { errors } } = useForm();
-
-// Replace with:
-const [validateField] = useYupHookValidate({...});
-const [formErrors, setFormErrors] = useState({});
-```
-
-## 🚀 Performance Tips
-
-1. **Use `validationTimeout`** for better UX during typing
-2. **Memoize your schema** to prevent unnecessary re-renders
-3. **Use `onBlur`** for less aggressive validation
-4. **Batch state updates** when possible
-
-```tsx
-// ✅ Good - memoized schema
 const schema = useMemo(
   () =>
-    yup.object().shape({
+    yup.object({
       email: yup.string().email().required(),
     }),
   []
 );
-
-// ❌ Avoid - recreating schema on every render
-const schema = yup.object().shape({
-  email: yup.string().email().required(),
-});
 ```
 
-## 🆚 Comparison
+---
 
-| Feature           | use-yup-hook-validate | Formik          | React Hook Form |
-| ----------------- | --------------------- | --------------- | --------------- |
-| Bundle Size       | 🟢 Small              | 🟡 Medium       | 🟢 Small        |
-| Learning Curve    | 🟢 Easy               | 🟡 Medium       | 🔴 Hard         |
-| TypeScript        | 🟢 Full Support       | 🟢 Full Support | 🟢 Full Support |
-| Render Props      | 🟢 None               | 🔴 Required     | 🟢 None         |
-| Custom Validation | 🟢 Yup Schema         | 🟢 Yup Schema   | 🟡 Custom Logic |
-| Performance       | 🟢 Optimized          | 🟡 Good         | 🟢 Optimized    |
+## Performance Notes
 
-## 🎯 Migration Guide
+The hook is designed for responsive forms without unnecessary work:
 
-### From Formik
+- **Debounced validation** — field and full-form checks share a single debounced scheduler (configurable via `validationTimeout`).
+- **Field-only validation** — uses Yup's `validateAt` instead of re-running the full schema for each field.
+- **Stable refs** — schema and form state are read from refs inside validation to avoid stale closures without extra effect churn.
+- **Skipped re-renders** — error state updates are skipped when the message for a path has not changed.
+- **`sideEffects: false`** — safe for tree-shaking in modern bundlers.
+
+**Tips for consumers:**
+
+1. Memoize `validationSchema` (see above).
+2. Prefer `onBlur` over `onChange` when immediate feedback is not required.
+3. Increase `validationTimeout` for large forms or slow devices.
+4. Keep `updateErrorsCallback` stable (`useCallback` or pass `setState` directly).
+
+---
+
+## Exports
 
 ```tsx
-// Before (Formik)
-<Formik initialValues={initialValues} validationSchema={schema} onSubmit={handleSubmit}>
-  {({ values, errors, handleChange, handleBlur }) => (
-    <Form>
-      <Field name="email" onChange={handleChange} onBlur={handleBlur} />
-      <ErrorMessage name="email" />
-    </Form>
-  )}
-</Formik>;
-
-// After (use-yup-hook-validate)
-const [formState, setFormState] = useState(initialValues);
-const [formErrors, setFormErrors] = useState({});
-const [validateField, isValid] = useYupHookValidate({
-  validationSchema: schema,
-  formState,
-  updateErrorsCallback: setFormErrors,
-});
-
-<form onSubmit={handleSubmit}>
-  <input
-    value={formState.email}
-    onChange={handleInputChange('email')}
-    onBlur={validateField('email')}
-  />
-  {formErrors.email && <span>{formErrors.email}</span>}
-</form>;
+import {
+  useYupHookValidate, // default hook
+  yup,                // Yup with custom methods pre-registered
+  ptBr,               // Portuguese locale messages
+  isCpf,
+  isCnpj,
+  addCustomMethods,   // register custom methods on another Yup instance
+} from 'use-yup-hook-validate';
 ```
 
-## 🤝 Contributing
+---
 
-We love contributions! Here's how you can help:
-
-1. 🍴 Fork the repository
-2. 🌟 Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. ✅ Add tests for your changes
-4. 💚 Make sure all tests pass (`npm test`)
-5. 📝 Commit your changes (`git commit -m 'Add amazing feature'`)
-6. 🚀 Push to the branch (`git push origin feature/amazing-feature`)
-7. 🎉 Open a Pull Request
-
-### Development Setup
+## Development
 
 ```bash
 git clone https://github.com/dougvil/use-yup-hook-validate.git
 cd use-yup-hook-validate
 npm install
-npm run build
-npm run watch  # For development
+npm run build    # compile to dist/
+npm run test     # Vitest
+npm run lint     # ESLint
+npm run watch    # watch mode
 ```
-
-## 📄 Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
-
-## 🙏 Acknowledgments
-
-- Built with ❤️ by [Douglas Viliano](https://github.com/dougvil)
-- Powered by [Yup](https://github.com/jquense/yup) validation library
-- Inspired by the React community's need for simpler form validation
 
 ---
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## License
+
+MIT · [Douglas Viliano](https://github.com/dougvil)
+
 <div align="center">
 
-**⭐ Star this repo if it helped you! ⭐**
-
-[Report Bug](https://github.com/dougvil/use-yup-hook-validate/issues) • [Request Feature](https://github.com/dougvil/use-yup-hook-validate/issues) • [Contribute](https://github.com/dougvil/use-yup-hook-validate/pulls)
-
-Made with 💻 and ☕ by developers, for developers.
-
-**Just Yup and You!** ✨
+[Report Bug](https://github.com/dougvil/use-yup-hook-validate/issues) · [Request Feature](https://github.com/dougvil/use-yup-hook-validate/issues) · [Contribute](https://github.com/dougvil/use-yup-hook-validate/pulls)
 
 </div>

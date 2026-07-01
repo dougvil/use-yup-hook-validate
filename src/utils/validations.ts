@@ -1,7 +1,7 @@
 export function isCpf(y: string): boolean {
   const x = y.replace(/\D/g, '');
 
-  if (x.length > 11) {
+  if (x.length !== 11) {
     return false;
   }
 

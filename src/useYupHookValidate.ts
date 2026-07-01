@@ -1,7 +1,7 @@
 import { ObjectSchema, AnySchema } from 'yup';
 import * as yup from 'yup';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import assign from 'lodash/assign';
+import get from 'lodash/get';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
 import isEmpty from 'lodash/isEmpty';
@@ -27,6 +27,19 @@ export type UseYupHookValidateReturn = [
   () => void,
 ];
 
+function shallowEqualErrors(
+  a: Record<string, any>,
+  b: Record<string, any>
+): boolean {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  for (const key of aKeys) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
+
 /**
  * React hook that validates an entire form and individual fields using Yup
  * Returns: [validateFieldGenerator, isValid, reset]
@@ -39,65 +52,72 @@ export default function useYupHookValidate<TForm extends Record<string, any>>({
 }: UseYupHookValidateParams<TForm>): UseYupHookValidateReturn {
   const [params, setParams] = useState<{
     fieldPath?: string;
-    formState?: TForm;
     onSuccess?: () => void;
   }>({});
   const [errors, setErrors] = useState<Record<string, any>>({});
   const [valid, setValid] = useState(false);
 
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
+
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
+
+  const validationSchemaRef = useRef(validationSchema);
+  validationSchemaRef.current = validationSchema;
+
   const validateForm = useCallback(() => {
-    validationSchema
-      .validate(formState, { abortEarly: false })
+    validationSchemaRef.current
+      .validate(formStateRef.current, { abortEarly: false })
       .then(() => setValid(true))
       .catch(() => setValid(false));
-  }, [validationSchema, formState]);
-  const validateFormRef = useRef(validateForm);
+  }, []);
 
   const validatePath = useCallback(() => {
-    const { fieldPath, onSuccess } = params;
-    if (!isEmpty(params) && fieldPath) {
-      (validationSchema as any)
-        .validateAt(fieldPath, formState)
-        .then(() => {
-          const errAux = { ...errors };
-          unset(errAux, fieldPath);
-          setErrors(errAux);
-          onSuccess && onSuccess();
-        })
-        .catch((err: any) => {
-          const errAux = { ...errors };
-          set(errAux, err.path, err.message);
-          const assignedErrors = assign({}, errors, errAux);
-          setErrors(assignedErrors);
+    const { fieldPath, onSuccess } = paramsRef.current;
+    if (!fieldPath) return;
+
+    validationSchemaRef.current
+      .validateAt(fieldPath, formStateRef.current)
+      .then(() => {
+        setErrors((prev) => {
+          if (!get(prev, fieldPath)) return prev;
+          const next = { ...prev };
+          unset(next, fieldPath);
+          return next;
         });
-    }
-  }, [params, validationSchema, formState, errors]);
+        onSuccess?.();
+      })
+      .catch((err: any) => {
+        const path = err.path ?? fieldPath;
+        const message = err.message;
+        setErrors((prev) => {
+          if (get(prev, path) === message) return prev;
+          const next = { ...prev };
+          set(next, path, message);
+          return next;
+        });
+      });
+  }, []);
 
-  const validatePathRef = useRef(validatePath);
+  const debouncedValidateRef = useRef<ReturnType<typeof debounce>>();
 
-  const callback = useCallback(() => {
-    const fn = debounce(() => {
-      validateFormRef.current();
-      validatePathRef.current();
+  useEffect(() => {
+    debouncedValidateRef.current?.cancel();
+    debouncedValidateRef.current = debounce(() => {
+      validateForm();
+      validatePath();
     }, validationTimeout);
-    fn();
-  }, [validationTimeout]);
+
+    return () => debouncedValidateRef.current?.cancel();
+  }, [validationTimeout, validateForm, validatePath]);
 
   useEffect(() => {
-    validateFormRef.current = validateForm;
-    validatePathRef.current = validatePath;
-  }, [validateForm, validatePath]);
-
-  useEffect(() => {
-    if (!isEmpty(params)) callback();
-  }, [params, callback]);
+    if (!isEmpty(params)) debouncedValidateRef.current?.();
+  }, [params]);
 
   const validateField = (fieldPath: string, onSuccess?: () => void) => () => {
-    setParams({
-      fieldPath,
-      formState,
-      onSuccess,
-    });
+    setParams({ fieldPath, onSuccess });
   };
 
   const reset = () => {
@@ -106,9 +126,15 @@ export default function useYupHookValidate<TForm extends Record<string, any>>({
     setTimeout(() => updateErrorsCallback({}), 1);
   };
 
+  const updateErrorsCallbackRef = useRef(updateErrorsCallback);
+  updateErrorsCallbackRef.current = updateErrorsCallback;
+
+  const prevErrorsRef = useRef(errors);
   useEffect(() => {
-    updateErrorsCallback(errors);
-  }, [errors, updateErrorsCallback]);
+    if (shallowEqualErrors(prevErrorsRef.current, errors)) return;
+    prevErrorsRef.current = errors;
+    updateErrorsCallbackRef.current(errors);
+  }, [errors]);
 
   return [validateField, valid, reset];
 }
